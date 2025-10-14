@@ -20,7 +20,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function AuthGuard({ children, redirectTo = '/components/login' }) {
+export default function AuthGuard({ children, redirectTo = '/components/admin/login' }) {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
 

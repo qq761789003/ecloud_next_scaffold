@@ -12,22 +12,22 @@ import { Home, User, Settings, FileText } from 'lucide-react';
 const menuItems = [
   {
     name: '首页',
-    href: '/components/home',
+    href: '/components/admin/home',
     icon: Home,
   },
   {
     name: '个人资料',
-    href: '/components/profile',
+    href: '/components/admin/profile',
     icon: User,
   },
   {
     name: '文档',
-    href: '/components/docs',
+    href: '/components/admin/docs',
     icon: FileText,
   },
   {
     name: '设置',
-    href: '/components/settings',
+    href: '/components/admin/settings',
     icon: Settings,
   },
 ];

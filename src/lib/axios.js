@@ -91,7 +91,7 @@ instance.interceptors.response.use(
         // 刷新失败，清除认证信息并跳转到登录页
         clearAuth();
         if (typeof window !== 'undefined') {
-          window.location.href = '/components/login';
+          window.location.href = '/components/admin/login';
         }
         return Promise.reject(refreshError);
       } finally {

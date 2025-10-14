@@ -17,7 +17,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/components/login');
+    router.push('/components/admin/login');
   };
 
   return (

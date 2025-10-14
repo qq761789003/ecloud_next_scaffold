@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * 登录页面
- * 路径: /components/login
+ * 注册页面
+ * 路径: /components/register
  */
 
 import { useState } from 'react';
@@ -11,13 +11,15 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { register } = useAuth();
 
   const [formData, setFormData] = useState({
+    email: '',
     username: '',
     password: '',
+    confirmPassword: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,12 +37,27 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    const result = await login(formData);
+    // 验证密码
+    if (formData.password !== formData.confirmPassword) {
+      setError('两次输入的密码不一致');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('密码长度至少为 6 位');
+      setLoading(false);
+      return;
+    }
+
+    // 调用注册 API
+    const { confirmPassword, ...registerData } = formData;
+    const result = await register(registerData);
 
     if (result.success) {
-      router.push('/components/home');
+      router.push('/components/admin/home');
     } else {
-      setError(result.message || '登录失败，请重试');
+      setError(result.message || '注册失败，请重试');
     }
 
     setLoading(false);
@@ -51,10 +68,10 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
         <div>
           <h2 className="text-center text-3xl font-bold text-gray-900">
-            欢迎回来
+            创建账户
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            登录到您的账户
+            注册一个新账户
           </p>
         </div>
 
@@ -67,8 +84,24 @@ export default function LoginPage() {
 
           <div className="space-y-4">
             <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                邮箱
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="请输入邮箱"
+              />
+            </div>
+
+            <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                用户名或邮箱
+                用户名
               </label>
               <input
                 id="username"
@@ -78,7 +111,7 @@ export default function LoginPage() {
                 value={formData.username}
                 onChange={handleChange}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="请输入用户名或邮箱"
+                placeholder="请输入用户名"
               />
             </div>
 
@@ -94,7 +127,23 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="请输入密码"
+                placeholder="请输入密码（至少 6 位）"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                确认密码
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="请再次输入密码"
               />
             </div>
           </div>
@@ -105,14 +154,14 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full"
             >
-              {loading ? '登录中...' : '登录'}
+              {loading ? '注册中...' : '注册'}
             </Button>
           </div>
 
           <div className="text-center text-sm">
-            <span className="text-gray-600">还没有账户？</span>
-            <Link href="/components/register" className="ml-1 text-blue-600 hover:text-blue-700 font-medium">
-              立即注册
+            <span className="text-gray-600">已有账户？</span>
+            <Link href="/components/admin/login" className="ml-1 text-blue-600 hover:text-blue-700 font-medium">
+              立即登录
             </Link>
           </div>
         </form>

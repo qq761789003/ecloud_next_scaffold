@@ -9,18 +9,22 @@
 // ============================================
 export const PUBLIC_ROUTES = [
   '/',
-  '/components/login',
-  '/components/register',
+  '/components/website',
+  '/components/website/pricing',
+  '/components/website/partnership',
+  '/components/website/cases',
+  '/components/admin/login',
+  '/components/admin/register',
 ];
 
 // ============================================
 // 受保护的路由（需要登录）
 // ============================================
 export const PROTECTED_ROUTES = [
-  '/components/home',
-  '/components/profile',
-  '/components/settings',
-  '/components/docs',
+  '/components/admin/home',
+  '/components/admin/profile',
+  '/components/admin/settings',
+  '/components/admin/docs',
 ];
 
 // ============================================
@@ -35,8 +39,8 @@ export const PUBLIC_API_ROUTES = [
 // ============================================
 // 默认重定向路由
 // ============================================
-export const DEFAULT_LOGIN_REDIRECT = '/components/home'; // 登录后跳转
-export const DEFAULT_LOGOUT_REDIRECT = '/components/login'; // 登出后跳转
+export const DEFAULT_LOGIN_REDIRECT = '/components/admin/home'; // 登录后跳转
+export const DEFAULT_LOGOUT_REDIRECT = '/components/admin/login'; // 登出后跳转
 
 /**
  * 检查路径是否是公开路由
