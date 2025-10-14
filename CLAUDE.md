@@ -150,6 +150,7 @@ npm run theme:apply purple     # 应用紫色主题
 npm run theme:apply orange     # 应用橙色主题
 npm run theme:apply rose       # 应用玫瑰红主题
 npm run theme:apply neutral    # 恢复默认中性主题
+
 ```
 
 **自定义主题：**
