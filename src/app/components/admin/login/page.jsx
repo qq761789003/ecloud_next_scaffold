@@ -8,12 +8,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/app/store';
 import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const login = useAuthStore((state) => state.login);
 
   const [formData, setFormData] = useState({
     username: '',

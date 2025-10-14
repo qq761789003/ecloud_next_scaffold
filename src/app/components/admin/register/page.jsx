@@ -8,12 +8,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/app/store';
 import { Button } from '@/components/ui/button';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register } = useAuth();
+  const register = useAuthStore((state) => state.register);
 
   const [formData, setFormData] = useState({
     email: '',

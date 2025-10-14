@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { getAccessToken, getRefreshToken, saveTokens, clearAuth } from '@/utils/storage';
+import { useAuthStore } from '@/app/store/authStore';
 
 // 创建 axios 实例
 const instance = axios.create({
@@ -26,7 +26,8 @@ let requestQueue = [];
  */
 instance.interceptors.request.use(
   (config) => {
-    const token = getAccessToken();
+    // 从 Zustand store 获取 token
+    const token = useAuthStore.getState().accessToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -62,8 +63,8 @@ instance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // 尝试刷新 Token
-        const refreshToken = getRefreshToken();
+        // 从 store 获取 refreshToken
+        const refreshToken = useAuthStore.getState().refreshToken;
         if (!refreshToken) {
           throw new Error('No refresh token');
         }
@@ -74,7 +75,9 @@ instance.interceptors.response.use(
         );
 
         const { accessToken, refreshToken: newRefreshToken } = response.data;
-        saveTokens(accessToken, newRefreshToken);
+
+        // 保存新的 tokens 到 store（自动持久化）
+        useAuthStore.getState().setTokens(accessToken, newRefreshToken);
 
         // 更新原始请求的 Token
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -89,7 +92,7 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch (refreshError) {
         // 刷新失败，清除认证信息并跳转到登录页
-        clearAuth();
+        useAuthStore.getState().clearAuth();
         if (typeof window !== 'undefined') {
           window.location.href = '/components/admin/login';
         }

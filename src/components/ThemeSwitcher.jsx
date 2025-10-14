@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "@/contexts/ThemeContext";
+import { useThemeStore, themeSelectors } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,7 +24,10 @@ const themes = [
 ];
 
 export function ThemeSwitcher() {
-  const { theme, mode, setTheme, toggleMode } = useTheme();
+  const theme = useThemeStore(themeSelectors.theme);
+  const mode = useThemeStore(themeSelectors.mode);
+  const setTheme = useThemeStore((state) => state.setTheme);
+  const toggleMode = useThemeStore((state) => state.toggleMode);
 
   return (
     <div className="flex items-center gap-2">

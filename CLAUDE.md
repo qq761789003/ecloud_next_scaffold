@@ -145,12 +145,25 @@ npm run lint         # 运行 ESLint（配置为 next/core-web-vitals）
 **文件示例：**
 - `storage.js` - 本地存储工具（Token、用户信息存储）
 
-##### 5. `src/contexts/` - React Context 状态管理
-存放全局状态管理的 Context。
+##### 5. `src/app/store/` - Zustand 状态管理
+使用 Zustand 进行全局状态管理，提供更好的性能和简洁的 API。
 
-**文件示例：**
-- `AuthContext.jsx` - 认证状态管理（登录、登出、用户信息）
-- `ThemeContext.js` - 主题状态管理（主题切换、暗色模式）
+**文件：**
+- `createStore.js` - 通用 Store 工厂函数（支持持久化、DevTools）
+- `authStore.js` - 认证状态管理（登录、登出、用户信息）
+- `themeStore.js` - 主题状态管理（主题切换、暗色模式）
+- `StoreInitializer.jsx` - Store 初始化组件
+- `index.js` - 统一导出所有 stores
+
+**使用示例：**
+```javascript
+// 导入 store
+import { useAuthStore, useThemeStore } from '@/app/store';
+
+// 在组件中使用（自动订阅状态变化）
+const user = useAuthStore((state) => state.user);
+const login = useAuthStore((state) => state.login);
+```
 
 ##### 6. `src/config/` - 配置文件目录
 存放项目配置和常量定义。
@@ -222,7 +235,7 @@ npm run lint         # 运行 ESLint（配置为 next/core-web-vitals）
    └─ 否 → 继续判断
 
 5. 这是全局状态管理吗？
-   ├─ 是 → src/contexts/
+   ├─ 是 → src/app/store/
    └─ 否 → 继续判断
 
 6. 这是自定义 Hook 吗？
@@ -473,6 +486,7 @@ NEXT_PUBLIC_API_URL="http://localhost:3000"
 - **UI 组件**：shadcn/ui（基于 Radix UI）
 - **图标**：Lucide React
 - **代码检查**：ESLint 9
+- **状态管理**：Zustand（轻量级、高性能）
 - **数据库**：MySQL 8.0+
 - **ORM**：Prisma 6.9+
 - **认证**：JWT + bcryptjs

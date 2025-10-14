@@ -18,10 +18,11 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore, authSelectors } from '@/app/store';
 
 export default function AuthGuard({ children, redirectTo = '/components/admin/login' }) {
-  const { isAuthenticated, loading } = useAuth();
+  const isAuthenticated = useAuthStore(authSelectors.isAuthenticated);
+  const loading = useAuthStore(authSelectors.loading);
   const router = useRouter();
 
   useEffect(() => {
