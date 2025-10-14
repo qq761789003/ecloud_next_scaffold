@@ -14,16 +14,17 @@ datasource db {
 // 用户表
 // ============================================
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String   @unique
-  password  String   // 加密后的密码
-  nickname  String?
-  avatar    String?  @db.Text  // 头像 URL
-  role      Role     @default(USER)
-  status    Status   @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  username    String   @unique
+  password    String   // 加密后的密码
+  nickname    String?
+  avatar      String?  @db.Text  // 头像 URL
+  hlzs_user_id Int?     @unique  // 护理之声用户ID
+  role        Role     @default(USER)
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("users")
 }

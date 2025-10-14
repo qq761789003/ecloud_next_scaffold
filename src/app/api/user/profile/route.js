@@ -77,12 +77,13 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
-    const { nickname, avatar } = body;
+    const { nickname, avatar, hlzs_user_id } = body;
 
     // 构建更新数据
     const updateData = {};
     if (nickname !== undefined) updateData.nickname = nickname;
     if (avatar !== undefined) updateData.avatar = avatar;
+    if (hlzs_user_id !== undefined) updateData.hlzs_user_id = hlzs_user_id;
 
     // 更新用户信息
     const user = await prisma.user.update({
