@@ -134,6 +134,49 @@ shadcn/ui 已配置完整的主题系统，包括：
 - Sidebar 颜色变量（用于侧边栏组件）
 - 圆角变量（sm, md, lg, xl）
 
+#### 快速切换主题
+项目已配置主题系统，可以快速切换预设主题：
+
+**查看所有可用主题：**
+```bash
+npm run theme:list
+```
+
+**应用主题：**
+```bash
+npm run theme:apply blue       # 应用蓝色主题
+npm run theme:apply green      # 应用绿色主题
+npm run theme:apply purple     # 应用紫色主题
+npm run theme:apply orange     # 应用橙色主题
+npm run theme:apply rose       # 应用玫瑰红主题
+npm run theme:apply neutral    # 恢复默认中性主题
+```
+
+**自定义主题：**
+编辑 `src/config/themes.js` 文件，添加或修改主题配置。使用友好的 HEX 颜色格式定义，脚本会自动转换为 OKLCH 格式：
+
+```javascript
+export const themes = {
+  myTheme: {
+    name: "我的主题",
+    light: {
+      primary: "#3b82f6",           // 使用 HEX 颜色
+      primaryForeground: "#ffffff",
+      // ... 其他颜色
+    },
+    dark: {
+      primary: "#60a5fa",
+      // ... 暗色模式颜色
+    },
+  },
+};
+```
+
+然后运行：
+```bash
+npm run theme:apply myTheme
+```
+
 ## 技术栈
 - **框架**：Next.js 15.5.5（App Router）
 - **React**：19.1.0

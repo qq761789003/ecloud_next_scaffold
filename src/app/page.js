@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 export default function Home() {
   return (
     <div className="min-h-screen p-8 pb-20 sm:p-20">
+      {/* 主题切换器 - 固定在右上角 */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeSwitcher />
+      </div>
+
       <main className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold">欢迎使用 eCloud Next Scaffold</h1>
@@ -57,8 +63,32 @@ export default function Home() {
             <li>Turbopack 快速构建</li>
             <li>ESLint 9 代码质量检查</li>
             <li>Geist 字体优化</li>
-            <li>自动暗色模式支持</li>
+            <li>🎨 实时主题切换（7 个预设主题）</li>
+            <li>🌓 亮色/暗色模式切换</li>
           </ul>
+        </div>
+
+        <div className="space-y-4 p-6 border rounded-lg bg-card">
+          <h2 className="text-2xl font-semibold">🎨 主题系统使用说明</h2>
+          <div className="space-y-3 text-muted-foreground">
+            <p>
+              点击右上角的{" "}
+              <span className="inline-flex items-center px-2 py-1 rounded bg-primary/10 text-primary font-mono text-sm">
+                🎨
+              </span>{" "}
+              图标选择不同的主题配色。
+            </p>
+            <p>
+              点击右上角的{" "}
+              <span className="inline-flex items-center px-2 py-1 rounded bg-primary/10 text-primary font-mono text-sm">
+                ☀️/🌙
+              </span>{" "}
+              图标切换亮色/暗色模式。
+            </p>
+            <p className="text-sm">
+              主题设置会自动保存到浏览器本地存储，下次访问时会自动恢复。
+            </p>
+          </div>
         </div>
       </main>
     </div>
