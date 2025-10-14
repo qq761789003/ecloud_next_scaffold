@@ -136,24 +136,31 @@ npm run lint         # 运行 ESLint（配置为 next/core-web-vitals）
 存放封装的第三方库和核心工具函数。
 
 **文件示例：**
-- `axios.js` - Axios 请求封装，包含拦截器、Token 自动刷新
+- `axios.js` - Axios 请求封装，包含拦截器、Token 自动刷新（从 Zustand store 获取 token）
 - `utils.js` - 通用工具函数（如 `cn()` 类名合并）
+- `theme-utils.js` - 主题工具函数（HEX 转 OKLCH、应用主题到 CSS 变量）
 
-##### 4. `src/utils/` - 业务工具函数
-存放项目特定的业务工具函数。
-
-**文件示例：**
-- `storage.js` - 本地存储工具（Token、用户信息存储）
-
-##### 5. `src/app/store/` - Zustand 状态管理
-使用 Zustand 进行全局状态管理，提供更好的性能和简洁的 API。
+##### 4. `src/app/store/` - Zustand 状态管理
+使用 Zustand 进行全局状态管理，完全替代 React Context，提供更好的性能和简洁的 API。
 
 **文件：**
 - `createStore.js` - 通用 Store 工厂函数（支持持久化、DevTools）
-- `authStore.js` - 认证状态管理（登录、登出、用户信息）
+- `authStore.js` - 认证状态管理（登录、登出、用户信息、tokens）
 - `themeStore.js` - 主题状态管理（主题切换、暗色模式）
-- `StoreInitializer.jsx` - Store 初始化组件
+- `StoreInitializer.jsx` - Store 初始化组件（在客户端挂载时初始化）
 - `index.js` - 统一导出所有 stores
+
+**认证 Store 特点：**
+- 所有认证数据（user + accessToken + refreshToken）统一管理
+- `isAuthenticated` 是普通状态字段而非 getter，确保正确的响应式更新
+- 自动持久化到 localStorage（key: `auth-storage`）
+- 登录/登出时同步更新所有相关状态
+
+**主题 Store 特点：**
+- 支持多主题切换（neutral、blue、green、purple、orange、rose、custom）
+- 支持亮色/暗色模式切换
+- 动态应用 CSS 变量（通过 `theme-utils.js`）
+- 自动持久化主题选择
 
 **使用示例：**
 ```javascript
@@ -163,37 +170,51 @@ import { useAuthStore, useThemeStore } from '@/app/store';
 // 在组件中使用（自动订阅状态变化）
 const user = useAuthStore((state) => state.user);
 const login = useAuthStore((state) => state.login);
+
+// 使用 selectors（性能优化）
+import { authSelectors } from '@/app/store';
+const isAuthenticated = useAuthStore(authSelectors.isAuthenticated);
+
+// 在非组件中使用（如 axios 拦截器）
+const token = useAuthStore.getState().accessToken;
+useAuthStore.getState().clearAuth();
 ```
 
-##### 6. `src/config/` - 配置文件目录
+**初始化：**
+在 `src/app/layout.js` 中使用 `StoreInitializer` 包裹应用：
+```javascript
+<StoreInitializer>{children}</StoreInitializer>
+```
+
+##### 5. `src/config/` - 配置文件目录
 存放项目配置和常量定义。
 
 **文件示例：**
 - `routes.js` - 路由配置（公开路由、保护路由、API 路由）
-- `themes.js` - 主题配置（预设主题定义）
+- `themes.js` - 主题配置（预设主题定义，支持 HEX 颜色格式）
 
-##### 7. `src/hooks/` - 自定义 React Hooks
+##### 6. `src/hooks/` - 自定义 React Hooks
 存放自定义的可复用 Hooks。
 
 **创建规则：**
 - 文件名以 `use` 开头（如 `useAuth.js`）
 - 遵循 React Hooks 规范
 
-##### 8. `doc/` - 项目文档目录
+##### 7. `doc/` - 项目文档目录
 存放项目相关文档和说明。
 
 **现有文档：**
 - `登录整体实现方案.md` - 登录系统实现文档
 - `路由保护配置说明.md` - 路由保护使用指南
 
-##### 9. `prisma/` - 数据库相关
+##### 8. `prisma/` - 数据库相关
 存放 Prisma ORM 相关文件。
 
 **文件：**
 - `schema.prisma` - 数据库模型定义
 - `migrations/` - 数据库迁移文件
 
-##### 10. `public/` - 静态资源目录
+##### 9. `public/` - 静态资源目录
 存放静态文件（图片、字体等），可直接通过 URL 访问。
 
 #### **文件命名规范**
@@ -201,10 +222,12 @@ const login = useAuthStore((state) => state.login);
 1. **页面组件**：使用 `page.jsx` 或 `page.js`（Next.js App Router 约定）
 2. **API 路由**：使用 `route.js`（Next.js App Router 约定）
 3. **通用组件**：使用 PascalCase（如 `AuthGuard.jsx`、`Button.jsx`）
-4. **工具函数**：使用 camelCase（如 `axios.js`、`storage.js`）
-5. **配置文件**：使用 camelCase 或 kebab-case（如 `routes.js`、`next.config.mjs`）
-6. **Context**：使用 PascalCase + Context 后缀（如 `AuthContext.jsx`）
+4. **工具函数**：使用 camelCase（如 `axios.js`、`theme-utils.js`）
+5. **配置文件**：使用 camelCase 或 kebab-case（如 `routes.js`、`themes.js`、`next.config.mjs`）
+6. **Store**：使用 camelCase + Store 后缀（如 `authStore.js`、`themeStore.js`）
 7. **Hooks**：使用 camelCase + use 前缀（如 `useAuth.js`）
+
+**注意：** 项目已全面采用 Zustand 进行状态管理，不再使用 React Context。
 
 #### **新建文件/文件夹时的决策流程**
 
@@ -230,8 +253,7 @@ const login = useAuthStore((state) => state.login);
    └─ 否 → 继续判断
 
 4. 这是工具函数或第三方库封装吗？
-   ├─ 核心库封装 → src/lib/
-   ├─ 业务工具 → src/utils/
+   ├─ 是 → src/lib/
    └─ 否 → 继续判断
 
 5. 这是全局状态管理吗？
@@ -273,11 +295,33 @@ import Component from '@/components/MyComponent'  // 映射到 ./src/*
 - 使用新的 Tailwind v4 架构（不需要 `tailwind.config.js`）
 - 全局样式在 `src/app/globals.css` 中
 - **Tailwind v4 主题配置**：在 globals.css 中使用 `@theme inline` 指令定义自定义主题令牌
-- **CSS 变量**：
-  - 字体变量：`--font-geist-sans`、`--font-geist-mono`（来自 Next.js Font）
-  - 颜色变量：`--background`、`--foreground`（通过 `prefers-color-scheme` 支持暗色模式）
-  - 主题令牌：通过 `@theme inline` 映射（例如：`--color-background`、`--color-foreground`）
-- **暗色模式**：使用 CSS 媒体查询 `prefers-color-scheme: dark` 自动支持暗色模式
+
+**CSS 变量系统：**
+- 字体变量：`--font-geist-sans`、`--font-geist-mono`（来自 Next.js Font）
+- 颜色变量：使用语义化命名（`--background`、`--foreground`、`--primary`、`--card` 等）
+- 主题令牌：通过 `@theme inline` 映射到 Tailwind 类名
+
+**动态主题系统：**
+- 主题由 `themeStore.js` + `theme-utils.js` 动态管理
+- 不使用静态的 `.dark` CSS 规则，而是动态设置 CSS 变量
+- 支持运行时切换主题颜色和亮色/暗色模式
+- 暗色模式通过在 `<html>` 元素添加 `.dark` 类触发
+- 所有主题颜色在 `src/config/themes.js` 中定义
+
+**UI 设计规范：**
+- ❌ **避免使用** 硬编码颜色类名（如 `bg-white`、`text-gray-900`、`border-gray-200`）
+- ✅ **推荐使用** 语义化主题类名（如 `bg-background`、`bg-card`、`text-foreground`、`text-muted-foreground`、`border-border`）
+- ✅ 使用柔和的阴影而非硬边框（`shadow-sm`、`shadow-lg` 优于 `border`）
+- ✅ 使用圆角（`rounded-xl`、`rounded-2xl`）创建现代感
+- ✅ 使用渐变和透明度创建层次感（`bg-gradient-to-br from-primary/10`）
+
+**常用语义化类名：**
+```
+背景色：bg-background, bg-card, bg-muted, bg-accent
+文字色：text-foreground, text-card-foreground, text-muted-foreground
+边框色：border-border
+主题色：bg-primary, text-primary, border-primary
+```
 
 ### 字体配置
 使用 Next.js 字体优化功能加载 Google 字体：
@@ -355,13 +399,32 @@ shadcn/ui 使用以下路径别名：
 - **tw-animate-css**: Tailwind CSS 动画支持
 
 ### 主题系统
-shadcn/ui 已配置完整的主题系统，包括：
-- 亮色和暗色模式支持（`.dark` 类切换）
-- 使用 OKLCH 颜色空间定义的调色板
-- 完整的语义化颜色变量（primary, secondary, muted, accent, destructive 等）
-- Chart 颜色变量（用于数据可视化）
-- Sidebar 颜色变量（用于侧边栏组件）
-- 圆角变量（sm, md, lg, xl）
+项目配置了完整的动态主题系统，基于 shadcn/ui 扩展：
+
+**特性：**
+- ✅ 运行时动态切换主题颜色（7 种预设主题）
+- ✅ 亮色/暗色模式切换（通过 `.dark` 类）
+- ✅ 使用 OKLCH 颜色空间（更好的色彩感知）
+- ✅ 完整的语义化颜色变量（primary, secondary, muted, accent, destructive 等）
+- ✅ 主题持久化（保存到 localStorage）
+- ✅ Chart 颜色变量（用于数据可视化）
+- ✅ Sidebar 颜色变量（用于侧边栏组件）
+- ✅ 圆角变量（sm, md, lg, xl）
+
+**技术实现：**
+- `themeStore.js` - 管理主题状态（theme、mode）
+- `theme-utils.js` - HEX 转 OKLCH、动态设置 CSS 变量
+- `themes.js` - 主题配置（使用友好的 HEX 格式）
+- `ThemeSwitcher.jsx` - UI 切换组件
+
+**可用主题：**
+- neutral（中性灰）
+- blue（海洋蓝）
+- green（森林绿）
+- purple（神秘紫）
+- orange（活力橙）
+- rose（玫瑰红）
+- custom（自定义粉色 - 默认主题）
 
 #### 快速切换主题
 项目已配置主题系统，可以快速切换预设主题：
@@ -409,9 +472,10 @@ npm run theme:apply myTheme
 
 ## 认证系统
 
-项目使用 JWT（JSON Web Token）+ Prisma ORM 实现完整的认证系统。
+项目使用 JWT（JSON Web Token）+ Zustand + Prisma ORM 实现完整的认证系统。
 
 ### 技术方案
+- **状态管理**：Zustand（完全替代 React Context）
 - **数据库**：MySQL 8.0+
 - **ORM**：Prisma 6.9+
 - **认证方式**：JWT（Access Token + Refresh Token）
@@ -420,20 +484,46 @@ npm run theme:apply myTheme
 
 ### 认证流程
 1. 用户登录 → 后端验证 → 返回 Access Token 和 Refresh Token
-2. Token 存储在 localStorage 中
-3. 每次请求自动在 Header 中添加 Authorization: Bearer {token}
-4. Access Token 过期时自动使用 Refresh Token 刷新
-5. Refresh Token 失效时跳转到登录页
+2. Token 和用户信息存储在 Zustand store 中（自动持久化到 localStorage）
+3. 每次请求自动从 store 获取 token 并添加到 Header（Authorization: Bearer {token}）
+4. Access Token 过期时自动使用 Refresh Token 刷新，并更新 store
+5. Refresh Token 失效时清空 store 并跳转到登录页
+
+### 状态管理架构
+- **核心文件**：`src/app/store/authStore.js`
+- **存储内容**：user、accessToken、refreshToken、isAuthenticated、loading
+- **持久化 key**：`auth-storage`（localStorage）
+- **重要特性**：
+  - `isAuthenticated` 是普通状态字段（非 getter），确保响应式更新
+  - 登录/登出/刷新 token 时同步更新所有相关状态
+  - 在非组件环境（如 axios 拦截器）使用 `useAuthStore.getState()` 访问
 
 ### 路由保护
 - **配置文件**：`src/config/routes.js` - 定义公开和保护的路由
-- **AuthGuard 组件**：`src/components/auth/AuthGuard.jsx` - 页面级保护
+- **AuthGuard 组件**：`src/components/auth/AuthGuard.jsx` - 页面级保护，从 store 读取认证状态
 - **Middleware**：`src/middleware.js` - 路由级检查
 - **API 保护**：在 API 路由中验证 Token
+
+### Token 刷新机制
+在 `src/lib/axios.js` 中实现：
+```javascript
+// 从 store 获取 token
+const token = useAuthStore.getState().accessToken;
+
+// 刷新 token 并更新 store
+useAuthStore.getState().setTokens(newAccessToken, newRefreshToken);
+
+// 清空认证状态
+useAuthStore.getState().clearAuth();
+```
 
 ### 详细文档
 - 完整实现方案：`doc/登录整体实现方案.md`
 - 路由保护配置：`doc/路由保护配置说明.md`
+
+### 重要提示
+⚠️ **不要使用** `localStorage.getItem()`/`setItem()` 直接操作认证数据
+✅ **应该使用** Zustand store 的方法（login、logout、setTokens、clearAuth）
 
 ## 数据库
 
@@ -486,8 +576,44 @@ NEXT_PUBLIC_API_URL="http://localhost:3000"
 - **UI 组件**：shadcn/ui（基于 Radix UI）
 - **图标**：Lucide React
 - **代码检查**：ESLint 9
-- **状态管理**：Zustand（轻量级、高性能）
+- **状态管理**：Zustand（轻量级、高性能，完全替代 React Context）
 - **数据库**：MySQL 8.0+
 - **ORM**：Prisma 6.9+
 - **认证**：JWT + bcryptjs
 - **HTTP 客户端**：Axios
+
+## 开发最佳实践
+
+### 状态管理
+- ✅ **使用** Zustand store 管理全局状态
+- ❌ **避免** 创建新的 React Context（项目已全面采用 Zustand）
+- ✅ **使用** selectors 优化性能（避免不必要的重渲染）
+- ✅ 在非组件环境使用 `useStore.getState()` 访问状态
+
+### UI 开发
+- ✅ **使用** 语义化主题类名（`bg-card`、`text-foreground`）
+- ❌ **避免** 硬编码颜色（`bg-white`、`text-gray-900`）
+- ✅ **使用** 阴影创建层次感（`shadow-sm`、`shadow-lg`）
+- ❌ **避免** 过多使用硬边框（`border`）
+- ✅ **使用** 圆角创建现代感（`rounded-xl`、`rounded-2xl`）
+- ✅ **使用** 渐变和透明度（`from-primary/10`、`bg-muted/30`）
+- ✅ **使用** lucide-react 图标库
+
+### 认证和安全
+- ✅ 所有认证数据通过 authStore 管理
+- ❌ 不直接操作 localStorage（由 Zustand 自动处理）
+- ✅ 使用 AuthGuard 保护需要登录的页面
+- ✅ API 路由中验证 JWT token
+
+### 主题开发
+- ✅ 所有主题在 `src/config/themes.js` 中集中管理
+- ✅ 使用 HEX 格式定义颜色（自动转换为 OKLCH）
+- ✅ 通过 themeStore 切换主题和模式
+- ❌ 不在 globals.css 中硬编码 `.dark` 样式
+
+### 文件组织
+- ✅ 页面放在 `src/app/components/` 下
+- ✅ 通用组件放在 `src/components/` 下
+- ✅ 工具函数放在 `src/lib/` 下
+- ✅ 状态管理放在 `src/app/store/` 下
+- ❌ 不再使用 `src/utils/` 目录（已废弃）
