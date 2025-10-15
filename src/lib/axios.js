@@ -50,8 +50,15 @@ instance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Token 过期 (401 错误)
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // 获取请求路径
+    const requestPath = originalRequest.url;
+
+    // 登录/注册接口的 401 错误是正常响应，不需要刷新 Token
+    const isAuthEndpoint = requestPath?.includes('/auth/login') ||
+                           requestPath?.includes('/auth/register');
+
+    // Token 过期 (401 错误) - 排除登录/注册接口
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       // 如果正在刷新 Token，将请求加入队列
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
