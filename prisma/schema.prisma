@@ -26,7 +26,28 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // 关联关系
+  notes       Note[]   // 一对多：一个用户可以有多条笔记
+
   @@map("users")
+}
+
+// ============================================
+// 笔记表
+// ============================================
+model Note {
+  id        Int        @id @default(autoincrement())
+  title     String     @db.VarChar(255)
+  content   String     @db.Text
+  userId    Int                             // 外键：关联用户
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags      String?    @db.VarChar(500)    // 标签，逗号分隔
+  status    NoteStatus @default(DRAFT)     // 状态：草稿/已发布
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("notes")
+  @@index([userId])
 }
 
 // ============================================
@@ -45,4 +66,13 @@ enum Status {
   ACTIVE    // 激活
   INACTIVE  // 停用
   BANNED    // 封禁
+}
+
+// ============================================
+// 笔记状态枚举
+// ============================================
+enum NoteStatus {
+  DRAFT      // 草稿
+  PUBLISHED  // 已发布
+  ARCHIVED   // 已归档
 }
